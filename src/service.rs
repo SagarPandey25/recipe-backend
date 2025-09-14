@@ -1,4 +1,4 @@
-use sea_orm::*;
+use sea_orm::{prelude::Expr, sea_query::Func, *};
 
 use crate::entities::{prelude::Recipe, recipe};
 
@@ -13,7 +13,9 @@ impl DBQuery {
 
         if let Some(q) = query {
             let q = q.to_lowercase();
-            stmt = stmt.filter(recipe::Column::Title.contains(q));
+            stmt = stmt.filter(
+                Expr::expr(Func::lower(Expr::col(recipe::Column::Title))).like(format!("%{}%", q)),
+            )
         }
 
         Ok(stmt.all(db).await?)
