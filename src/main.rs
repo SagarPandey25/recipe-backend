@@ -21,13 +21,14 @@ struct AppState {
 #[derive(Deserialize, Debug)]
 pub struct GetRecipiesQueryParams {
     pub query: Option<String>,
+    pub category: Option<String>,
 }
 
 async fn list_recipies(
     state: State<AppState>,
     Query(params): Query<GetRecipiesQueryParams>,
 ) -> Json<ApiResponse<Vec<recipe::Model>>> {
-    match DBQuery::find_recipies(&state.conn, params.query).await {
+    match DBQuery::find_recipies(&state.conn, params.query, params.category).await {
         Ok(recipies) => Json(ApiResponse::success(recipies)),
         Err(err) => Json(ApiResponse::error(format!("Cannot find recipies: {}", err))),
     }
